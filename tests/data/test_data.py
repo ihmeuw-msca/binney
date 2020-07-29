@@ -13,7 +13,7 @@ def test_binom_data_specs():
     assert specs.col_groups is None
 
 
-def test_lr_specs(df):
+def test_lr_specs(df, n):
     specs = LRSpecs(
         col_success='success',
         col_total='total',
@@ -21,10 +21,10 @@ def test_lr_specs(df):
     )
     specs.configure_data(df)
     dd = specs.data._param_set[0].design_matrix_fe
-    assert dd.shape == (1000, 2)
+    assert dd.shape == (n, 2)
     np.testing.assert_array_equal(
         dd[:, 0],
-        np.ones(shape=1000)
+        np.ones(shape=n)
     )
     np.testing.assert_array_equal(
         dd[:, 1],
