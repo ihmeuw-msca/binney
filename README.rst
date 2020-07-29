@@ -1,2 +1,3 @@
-# flipper
-Logistic regression modeling tool-kit
+==============================================
+flipper: Logistic regression modeling tool-kit
+==============================================
