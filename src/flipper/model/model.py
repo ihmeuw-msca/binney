@@ -18,9 +18,6 @@ class LRBinomModel(Model):
     def design_matrix(self):
         return self.p_specs.design_matrix_fe
 
-    def _loss(self):
-        pass
-
     @staticmethod
     def _g(m, x, design_matrix):
         return np.sum([
