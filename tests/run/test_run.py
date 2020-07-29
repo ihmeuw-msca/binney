@@ -30,8 +30,6 @@ def test_scipy_opt(df, intercept, slope):
     assert (1 >= b_run.solver.predict()).all()
 
 
-@pytest.mark.skip("No constraint matrix implemented"
-                  "for ipopt to work.")
 def test_ipopt(df, intercept, slope):
     true_params = [intercept, slope]
     b_run = BinomRun(
