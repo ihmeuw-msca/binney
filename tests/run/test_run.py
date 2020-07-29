@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import pandas as pd
 
 from flipper.run.run import BinomRun, RunException
 
@@ -54,3 +55,20 @@ def test_unrecognized_solver(df, intercept, slope):
             df=df,
             solver_method='my_random_solver'
         )
+
+
+def test_fractional_outcomes():
+    p = np.repeat(np.exp(3) / (1 + np.exp(3)), repeats=1e3)
+    np.random.seed(100)
+    df = pd.DataFrame({
+        'success': np.random.binomial(n=1, size=len(p), p=p),
+        'total': np.repeat(1, repeats=len(p))
+    })
+    b_run = BinomRun(
+        col_success='success',
+        col_total='total',
+        df=df,
+        solver_method='scipy'
+    )
+    b_run.fit(x_init=[1.])
+    assert np.round(b_run.solver.x_opt) == 3
