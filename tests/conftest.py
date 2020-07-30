@@ -40,3 +40,17 @@ def df(intercept, slope, n):
         'x1': x
     })
     return df
+
+
+@pytest.fixture(scope='session')
+def spline_df(n):
+    np.random.seed(0)
+    x = np.random.uniform(low=0, high=10, size=n)
+    p = np.exp(np.sin(x)) / (1 + np.exp(np.sin(x)))
+    df = pd.DataFrame({
+        'success': np.random.binomial(n=100, size=len(p), p=p),
+        'total': np.repeat(100, repeats=len(p)),
+        'p': p,
+        'x1': x
+    })
+    return df

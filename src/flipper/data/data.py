@@ -32,7 +32,7 @@ class BinomDataSpecs(DataSpecs):
 class LRSpecs:
     def __init__(self, col_success: str, col_total: str,
                  covariates: Optional[List[str]] = None,
-                 splines: Optional[List[Dict[str, Any]]] = None):
+                 splines: Optional[Dict[str, Dict[str, Any]]] = None):
 
         self.data_specs = BinomDataSpecs(
             col_obs=col_success,
@@ -48,7 +48,10 @@ class LRSpecs:
             covariate_variables = list()
         if splines is not None:
             spline_variables = [
-                Spline(**spl) for spl in splines
+                Spline(
+                    covariate=spline,
+                    **options
+                ) for spline, options in splines.items()
             ]
         else:
             spline_variables = list()
