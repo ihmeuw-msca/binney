@@ -16,7 +16,7 @@ class RunException(FlipperException):
 class BinomRun:
     def __init__(self, df: pd.DataFrame, col_success: str, col_total: str,
                  covariates: Optional[List[str]] = None,
-                 splines: Optional[List[Dict[str, Any]]] = None,
+                 splines: Optional[Dict[str, Dict[str, Any]]] = None,
                  solver_method: str = 'scipy'):
 
         self.lr_specs = LRSpecs(

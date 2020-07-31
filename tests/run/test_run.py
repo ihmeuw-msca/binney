@@ -70,3 +70,79 @@ def test_fractional_outcomes():
     )
     b_run.fit(x_init=[1.])
     assert np.round(b_run.solver.x_opt) == 3
+
+
+def test_splines(spline_df):
+    splines = {
+        'x1': {
+            'degree': 3,
+            'knots_num': 4,
+            'knots_type': 'frequency'
+        }
+    }
+    b_run = BinomRun(
+        col_success='success',
+        col_total='total',
+        df=spline_df,
+        splines=splines,
+        solver_method='ipopt'
+    )
+    b_run.fit(x_init=[0.0] * 6)
+    predictions = b_run.predict()
+    np.testing.assert_array_almost_equal(
+        x=predictions,
+        y=spline_df['p'].values,
+        decimal=1
+    )
+
+
+def test_spline_constraints(spline_concave_df):
+    splines = {
+        'x1': {
+            'degree': 3,
+            'knots_num': 4,
+            'knots_type': 'frequency',
+            'concave': True
+        }
+    }
+    b_run = BinomRun(
+        col_success='success',
+        col_total='total',
+        df=spline_concave_df,
+        splines=splines,
+        solver_method='ipopt'
+    )
+    b_run.fit(x_init=[0.0] * 6)
+    predictions = b_run.predict()
+    np.testing.assert_array_almost_equal(
+        x=predictions,
+        y=spline_concave_df['p'].values,
+        decimal=1
+    )
+
+
+def test_spline_constraints_fail(spline_concave_df):
+    splines = {
+        'x1': {
+            'degree': 3,
+            'knots_num': 4,
+            'knots_type': 'frequency',
+            'convex': True
+        }
+    }
+    b_run = BinomRun(
+        col_success='success',
+        col_total='total',
+        df=spline_concave_df,
+        splines=splines,
+        solver_method='ipopt'
+    )
+    b_run.fit(x_init=[0.0] * 6)
+    predictions = b_run.predict()
+    with pytest.raises(AssertionError):
+        np.testing.assert_array_almost_equal(
+            x=predictions,
+            y=spline_concave_df['p'].values,
+            decimal=1
+        )
+
