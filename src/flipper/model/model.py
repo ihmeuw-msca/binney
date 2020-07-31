@@ -15,7 +15,7 @@ class LRBinomModel(Model):
         super().__init__()
         self.p_specs = lr_specs.parameter_set
         self.C, self.c_lb, self.c_ub = build_linear_constraint([
-            (self.p_specs.constr_matrix_re, self.p_specs.constr_lb_re, self.p_specs.constr_ub_re)
+            (self.p_specs.constr_matrix_fe, self.p_specs.constr_lb_fe, self.p_specs.constr_ub_fe),
         ])
 
     @property
