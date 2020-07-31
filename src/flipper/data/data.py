@@ -9,6 +9,7 @@ from anml.parameter.variables import Variable, Intercept
 from anml.parameter.processors import process_all
 from flipper import FlipperException
 from flipper.utils import expit
+from flipper.data.splines import make_spline_variables
 
 
 # The format for data needs to have two columns
@@ -33,6 +34,24 @@ class LRSpecs:
     def __init__(self, col_success: str, col_total: str,
                  covariates: Optional[List[str]] = None,
                  splines: Optional[Dict[str, Dict[str, Any]]] = None):
+        """
+        Specifications for a logistic regression data set and parameters,
+        including splines and spline derivative constraints.
+
+        Parameters
+        ----------
+        col_success
+            The column name of the count outcome, or the number of "successes".
+        col_total
+            The column name of the total, or the number of trials.
+        covariates
+            List of covariate names to include as fixed effects.
+        splines
+            A dictionary with spline specifications. Valid options include
+            knots_type, knots_num, degree, r_linear (linear tail on right),
+            l_linear (linear tail on left), increasing (monotonic increasing constraint),
+            decreasing (monotonic decreasing constraint), concave, and convex.
+        """
 
         self.data_specs = BinomDataSpecs(
             col_obs=col_success,
@@ -46,15 +65,10 @@ class LRSpecs:
             ]
         else:
             covariate_variables = list()
+
+        spline_variables = list()
         if splines is not None:
-            spline_variables = [
-                Spline(
-                    covariate=spline,
-                    **options
-                ) for spline, options in splines.items()
-            ]
-        else:
-            spline_variables = list()
+            spline_variables = make_spline_variables(splines)
 
         parameter = Parameter(
             param_name='p',
