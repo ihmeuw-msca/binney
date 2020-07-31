@@ -89,4 +89,5 @@ class LRSpecs:
         self.data.process_data(df=df)
         for var in self.parameter_set.variables:
             var.build_design_matrix_fe(df=df)
+            var.build_constraint_matrix_fe()
         process_all(self.parameter_set, df)
