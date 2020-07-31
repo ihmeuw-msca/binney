@@ -102,7 +102,7 @@ def test_spline_constraints(spline_concave_df):
             'degree': 3,
             'knots_num': 4,
             'knots_type': 'frequency',
-            'concave': True
+            'convex': True
         }
     }
     b_run = BinomRun(
