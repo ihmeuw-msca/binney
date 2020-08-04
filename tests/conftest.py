@@ -43,6 +43,20 @@ def df(intercept, slope, n):
 
 
 @pytest.fixture(scope='session')
+def bernoulli_df(intercept, slope, n):
+    np.random.seed(0)
+    x = np.random.randn(n)
+    p = np.exp(intercept + x * slope) / (1 + np.exp(intercept + x * slope))
+    df = pd.DataFrame({
+        'success': np.random.binomial(n=1, size=len(p), p=p),
+        'total': np.repeat(1, repeats=len(p)),
+        'p': p,
+        'x1': x
+    })
+    return df
+
+
+@pytest.fixture(scope='session')
 def spline_df(n):
     np.random.seed(0)
     x = np.random.uniform(low=0, high=10, size=n)

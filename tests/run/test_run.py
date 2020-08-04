@@ -2,22 +2,21 @@ import numpy as np
 import pytest
 import pandas as pd
 
-from flipper.run.run import BinomRun, RunException
+from flipper.run.run import FlipperRun, RunException
 
 REL_TOL = 1e-2
 
 
 def test_scipy_opt(df, intercept, slope):
     true_params = [intercept, slope]
-    b_run = BinomRun(
+    b_run = FlipperRun(
         col_success='success',
         col_total='total',
         covariates=['x1'],
         df=df,
         solver_method='scipy',
         solver_options={
-            'maxiter': 500,
-            'maxcor': 25
+            'maxiter': 500
         }
     )
     b_run.fit()
@@ -30,7 +29,7 @@ def test_scipy_opt(df, intercept, slope):
 
 def test_ipopt(df, intercept, slope):
     true_params = [intercept, slope]
-    b_run = BinomRun(
+    b_run = FlipperRun(
         col_success='success',
         col_total='total',
         covariates=['x1'],
@@ -42,9 +41,9 @@ def test_ipopt(df, intercept, slope):
     assert all(rel_error < REL_TOL)
 
 
-def test_unrecognized_solver(df, intercept, slope):
+def test_unrecognized_solver(df):
     with pytest.raises(RunException):
-        BinomRun(
+        FlipperRun(
             col_success='success',
             col_total='total',
             covariates=['x1'],
@@ -60,7 +59,7 @@ def test_fractional_outcomes():
         'success': np.random.binomial(n=1, size=len(p), p=p),
         'total': np.repeat(1, repeats=len(p))
     })
-    b_run = BinomRun(
+    b_run = FlipperRun(
         col_success='success',
         col_total='total',
         df=df,
@@ -78,7 +77,7 @@ def test_splines(spline_df):
             'knots_type': 'frequency'
         }
     }
-    b_run = BinomRun(
+    b_run = FlipperRun(
         col_success='success',
         col_total='total',
         df=spline_df,
@@ -103,7 +102,7 @@ def test_spline_constraints(spline_concave_df):
             'concave': True
         }
     }
-    b_run = BinomRun(
+    b_run = FlipperRun(
         col_success='success',
         col_total='total',
         df=spline_concave_df,
@@ -128,7 +127,7 @@ def test_spline_constraints_fail(spline_concave_df):
             'convex': True
         }
     }
-    b_run = BinomRun(
+    b_run = FlipperRun(
         col_success='success',
         col_total='total',
         df=spline_concave_df,
@@ -145,8 +144,8 @@ def test_spline_constraints_fail(spline_concave_df):
         )
 
 
-def test_new_data(df, new_df, intercept, slope):
-    b_run = BinomRun(
+def test_new_data(df, new_df):
+    b_run = FlipperRun(
         col_success='success',
         col_total='total',
         covariates=['x1'],

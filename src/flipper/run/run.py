@@ -9,7 +9,7 @@ from anml.data.data import Data
 
 from flipper.model.model import LRBinomModel
 from flipper.data.data import LRSpecs
-from flipper.run.bootstrap import BinomBootstrap
+from flipper.run.bootstrap import BinomialBootstrap, BernoulliBootstrap
 from flipper import FlipperException
 
 
@@ -17,12 +17,20 @@ class RunException(FlipperException):
     pass
 
 
-class BinomRun:
+class FlipperRun:
     def __init__(self, df: pd.DataFrame, col_success: str, col_total: str,
                  covariates: Optional[List[str]] = None,
                  splines: Optional[Dict[str, Dict[str, Any]]] = None,
-                 solver_method: str = 'scipy', solver_options: Optional[Dict[str, Any]] = None):
+                 solver_method: str = 'scipy', solver_options: Optional[Dict[str, Any]] = None,
+                 data_type: str = 'bernoulli'):
 
+        # Check the data type
+        if data_type not in ['bernoulli', 'binomial']:
+            raise FlipperException(f"Data type must be one of 'bernoulli' or 'binomial'. "
+                                   f"Got {data_type}.")
+        self.data_type = data_type
+
+        # Configure the data specs
         self.lr_specs = LRSpecs(
             col_success=col_success,
             col_total=col_total,
@@ -31,9 +39,11 @@ class BinomRun:
         )
         self.lr_specs.configure_data(df=df)
 
+        # Set up the model
         self.model = LRBinomModel()
         self.model.attach_specs(lr_specs=self.lr_specs)
 
+        # Set up the solver
         if solver_method == 'scipy':
             self.solver = ScipyOpt(self.model)
         elif solver_method == 'ipopt':
@@ -41,17 +51,25 @@ class BinomRun:
         else:
             raise RunException(f"Unrecognized solver method {solver_method}."
                                "Please pass one of 'scipy' or 'ipopt'.")
-
-        self.bootstrap = BinomBootstrap(
-            solver=self.solver, model=self.model, df=df
-        )
-        self.bootstrap.attach_specs(lr_specs=self.lr_specs)
-
         if solver_options is None:
             solver_options = dict()
         self.options = {
             'solver_options': solver_options
         }
+
+        # Configure bootstrap object based on
+        # the data type
+        if data_type == 'bernoulli':
+            self.bootstrap = BernoulliBootstrap(
+                solver=self.solver, model=self.model, df=df
+            )
+        elif data_type == 'binomial':
+            self.bootstrap = BinomialBootstrap(
+                solver=self.solver, model=self.model, df=df
+            )
+        self.bootstrap.attach_specs(lr_specs=self.lr_specs)
+
+        # Placeholders for parameters and initial values
         self.params_init = np.zeros(self.model.design_matrix.shape[1])
         self.params_opt = None
 
