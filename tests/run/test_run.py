@@ -14,16 +14,14 @@ def test_scipy_opt(df, intercept, slope):
         col_total='total',
         covariates=['x1'],
         df=df,
-        solver_method='scipy'
-    )
-    b_run.fit(
-        x_init=[1., 1.],
+        solver_method='scipy',
         solver_options={
             'maxiter': 500,
             'maxcor': 25
         }
     )
-    rel_error = (b_run.solver.x_opt - true_params) / true_params
+    b_run.fit()
+    rel_error = (b_run.params_opt - true_params) / true_params
     assert all(rel_error < REL_TOL)
     assert b_run.solver.predict().shape == (len(df), )
     assert (0 <= b_run.solver.predict()).all()
@@ -39,8 +37,8 @@ def test_ipopt(df, intercept, slope):
         df=df,
         solver_method='ipopt'
     )
-    b_run.fit(x_init=[1., 1.])
-    rel_error = (b_run.solver.x_opt - true_params) / true_params
+    b_run.fit()
+    rel_error = (b_run.params_opt - true_params) / true_params
     assert all(rel_error < REL_TOL)
 
 
@@ -68,8 +66,8 @@ def test_fractional_outcomes():
         df=df,
         solver_method='scipy'
     )
-    b_run.fit(x_init=[1.])
-    assert np.round(b_run.solver.x_opt) == 3
+    b_run.fit()
+    assert np.round(b_run.params_opt) == 3
 
 
 def test_splines(spline_df):
@@ -87,7 +85,7 @@ def test_splines(spline_df):
         splines=splines,
         solver_method='ipopt'
     )
-    b_run.fit(x_init=[0.0] * 6)
+    b_run.fit()
     predictions = b_run.predict()
     np.testing.assert_array_almost_equal(
         x=predictions,
@@ -112,7 +110,7 @@ def test_spline_constraints(spline_concave_df):
         splines=splines,
         solver_method='ipopt'
     )
-    b_run.fit(x_init=[0.0] * 6)
+    b_run.fit()
     predictions = b_run.predict()
     np.testing.assert_array_almost_equal(
         x=predictions,
@@ -137,7 +135,7 @@ def test_spline_constraints_fail(spline_concave_df):
         splines=splines,
         solver_method='ipopt'
     )
-    b_run.fit(x_init=[0.0] * 6)
+    b_run.fit()
     predictions = b_run.predict()
     with pytest.raises(AssertionError):
         np.testing.assert_array_almost_equal(
@@ -146,3 +144,18 @@ def test_spline_constraints_fail(spline_concave_df):
             decimal=1
         )
 
+
+def test_new_data(df, new_df, intercept, slope):
+    b_run = BinomRun(
+        col_success='success',
+        col_total='total',
+        covariates=['x1'],
+        df=df,
+        solver_method='ipopt'
+    )
+    b_run.fit()
+    predict_1 = b_run.predict()
+    predict_2 = b_run.predict(new_df=new_df)
+
+    assert predict_1.shape == predict_2.shape
+    assert all(predict_1 != predict_2)

@@ -10,7 +10,8 @@ def test_lr_binom_model_simple(simple_df):
         col_total='total'
     )
     specs.configure_data(simple_df)
-    model = LRBinomModel(lr_specs=specs)
+    model = LRBinomModel()
+    model.attach_specs(lr_specs=specs)
     objective = model.objective(x=np.array([2]), data=specs.data)
     grad = model.gradient(x=np.array([2]), data=specs.data)
     assert isinstance(objective, float)
@@ -24,7 +25,8 @@ def test_lr_binom_one_cov(df):
         covariates=['x1']
     )
     specs.configure_data(df)
-    model = LRBinomModel(lr_specs=specs)
+    model = LRBinomModel()
+    model.attach_specs(lr_specs=specs)
     objective = model.objective(x=np.array([0, 2]), data=specs.data)
     grad = model.gradient(x=np.array([0, 2]), data=specs.data)
     assert isinstance(objective, float)

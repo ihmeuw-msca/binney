@@ -68,3 +68,17 @@ def spline_concave_df(n):
         'x1': x
     })
     return df
+
+
+@pytest.fixture(scope='session')
+def new_df(intercept, slope, n):
+    np.random.seed(101)
+    x = np.random.randn(n)
+    p = np.exp(intercept + x * slope) / (1 + np.exp(intercept + x * slope))
+    df = pd.DataFrame({
+        'success': np.random.binomial(n=100, size=len(p), p=p),
+        'total': np.repeat(100, repeats=len(p)),
+        'p': p,
+        'x1': x
+    })
+    return df
