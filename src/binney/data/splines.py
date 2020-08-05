@@ -1,7 +1,7 @@
 import numpy as np
 
 from anml.parameter.spline_variable import SplineLinearConstr, Spline
-from flipper import FlipperException
+from binney import BinneyException
 
 
 VALID_SPLINE_OPTIONS = {
@@ -37,7 +37,7 @@ def make_spline_variables(splines):
         spline_constraints = list()
         for option, value in options.copy().items():
             if not type(value) == VALID_SPLINE_OPTIONS[option]:
-                raise FlipperException(
+                raise BinneyException(
                     f"Invalid type of spline option {option}."
                     f"Got type {type(value)}, expected {VALID_SPLINE_OPTIONS[option]}."
                 )

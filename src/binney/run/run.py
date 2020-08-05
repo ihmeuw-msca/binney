@@ -7,35 +7,34 @@ from anml.solvers.interface import Solver
 from anml.solvers.base import ScipyOpt, IPOPTSolver
 from anml.data.data import Data
 
-from flipper.model.model import LRBinomModel
-from flipper.data.data import LRSpecs
-from flipper.run.bootstrap import BinomialBootstrap, BernoulliBootstrap
-from flipper import FlipperException
+from binney.model.model import BinomialModel
+from binney.data.data import LRSpecs
+from binney.run.bootstrap import BinomialBootstrap, BernoulliBootstrap
+from binney import BinneyException
 
 
-class RunException(FlipperException):
+class RunException(BinneyException):
     pass
 
 
-class FlipperRun:
+class BinneyRun:
     def __init__(self, df: pd.DataFrame, col_success: str, col_total: str,
                  covariates: Optional[List[str]] = None,
                  splines: Optional[Dict[str, Dict[str, Any]]] = None,
                  solver_method: str = 'scipy', solver_options: Optional[Dict[str, Any]] = None,
                  data_type: str = 'bernoulli'):
         """
-        Create a model run with flipper. The model can handle either binomial data or Bernoulli data.
+        Create a model run with binney. The model can handle either binomial data or Bernoulli data.
         If you have binomial data, your data will look something like "k successes out
-        of n trials" -- flipper needs to know both k and n. If you have Bernoulli data,
+        of n trials" -- binney needs to know both k and n. If you have Bernoulli data,
         your data will look like "individual-record" or "unit-record" data with 1's
         and 0's. The data needs to be in the same form as the bernoulli type, however all
         of the "n trials" will be 1, and then the outcome in "success" is either 1 or 0.
         See the Jupyter notebooks in this repository for an example of Binomial data.
         The model looks like this in either case:
 
-        .. math::
+        .. math:: k_i \sim Binomial(n_i, p_i)
 
-            k_i \sim Binomial(n_i, p_i) \\
 
         but where :math:`n_i = 1` if you have Bernoulli data.
         The goal is to estimate :math:`p` where :math:`p` is the logit of some linear predictor,
@@ -102,14 +101,14 @@ class FlipperRun:
             Optimal parameters found through the fitting process
         self.bootstrap
             Bootstrap class that creates uncertainty. After running the
-            :code:`FlipperRun.make_uncertainty()` method you can access
+            :code:`BinneyRun.make_uncertainty()` method you can access
             the parameter estimates across bootstrap replicates in
             :code:`self.bootstrap.parameters`.
         """
 
         # Check the data type
         if data_type not in ['bernoulli', 'binomial']:
-            raise FlipperException(f"Data type must be one of 'bernoulli' or 'binomial'. "
+            raise BinneyException(f"Data type must be one of 'bernoulli' or 'binomial'. "
                                    f"Got {data_type}.")
         self.data_type = data_type
 
@@ -123,7 +122,7 @@ class FlipperRun:
         self.lr_specs.configure_data(df=df)
 
         # Set up the model
-        self.model = LRBinomModel()
+        self.model = BinomialModel()
         self.model.attach_specs(lr_specs=self.lr_specs)
 
         # Set up the solver
@@ -163,8 +162,8 @@ class FlipperRun:
 
     def fit(self) -> None:
         """
-        Fit the flipper model after initialization.
-        Optimal parameters are stored in FlipperRun.params_opt.
+        Fit the binney model after initialization.
+        Optimal parameters are stored in BinneyRun.params_opt.
         """
         self._fit(solver=self.solver, data=self.lr_specs.data)
         self.params_opt = copy(self.solver.x_opt)

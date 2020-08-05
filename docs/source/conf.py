@@ -4,8 +4,8 @@
 from pathlib import Path
 import sys
 
-import flipper
-base_dir = Path(flipper.__file__).parent
+import binney
+base_dir = Path(binney.__file__).parent
 
 about = {}
 with (base_dir / "__about__.py").open() as f:

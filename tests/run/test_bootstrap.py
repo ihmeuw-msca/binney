@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
-from flipper.model.model import LRBinomModel
-from flipper.run.run import FlipperRun
-from flipper.run.bootstrap import BinomialBootstrap, BernoulliBootstrap
+from binney.model.model import BinomialModel
+from binney.run.run import BinneyRun
+from binney.run.bootstrap import BinomialBootstrap, BernoulliBootstrap
 
 from anml.solvers.interface import Solver
 
@@ -10,7 +10,7 @@ from anml.solvers.interface import Solver
 @pytest.mark.parametrize("seed", np.arange(10))
 def test_binomial_sampling(df, seed):
     np.random.seed(seed)
-    mod = LRBinomModel()
+    mod = BinomialModel()
     sol = Solver()
     boot = BinomialBootstrap(model=mod, solver=sol, df=df)
     sample = boot._sample(df=df, col_obs='success', col_total='total')
@@ -30,7 +30,7 @@ def test_binomial_sampling(df, seed):
 
 
 def test_bernoulli_sampling(bernoulli_df):
-    mod = LRBinomModel()
+    mod = BinomialModel()
     sol = Solver()
     boot = BernoulliBootstrap(model=mod, solver=sol, df=bernoulli_df)
     sample = boot._sample(df=bernoulli_df)
@@ -39,7 +39,7 @@ def test_bernoulli_sampling(bernoulli_df):
 
 def test_bootstrap_run(df, n):
     np.random.seed(99)
-    b_run = FlipperRun(
+    b_run = BinneyRun(
         col_success='success',
         col_total='total',
         covariates=['x1'],
@@ -73,7 +73,7 @@ def test_bootstrap_run(df, n):
 
 def test_bernoulli_run(bernoulli_df, n):
     np.random.seed(99)
-    b_run = FlipperRun(
+    b_run = BinneyRun(
         col_success='success',
         col_total='total',
         covariates=['x1'],

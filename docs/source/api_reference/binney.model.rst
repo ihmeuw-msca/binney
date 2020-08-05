@@ -1,11 +1,11 @@
-flipper.model package
+binney.model package
 =====================
 
 Model Module
 ------------
 
 
-.. automodule:: flipper.model.model
+.. automodule:: binney.model.model
     :members:
     :undoc-members:
     :show-inheritance:

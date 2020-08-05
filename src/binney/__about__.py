@@ -3,8 +3,8 @@ __all__ = [
     "__email__", "__license__", "__copyright__",
 ]
 
-__title__ = "flipper"
-__summary__ = "flipper: logistic regression tool-kit"
+__title__ = "binney"
+__summary__ = "binney: logistic regression tool-kit"
 __uri__ = "https://github.com/ihmeuw-msca/flipper"
 
 __version__ = "0.0.1"

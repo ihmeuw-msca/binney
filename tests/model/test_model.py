@@ -1,7 +1,7 @@
 import numpy as np
 
-from flipper.data.data import LRSpecs
-from flipper.model.model import LRBinomModel
+from binney.data.data import LRSpecs
+from binney.model.model import BinomialModel
 
 
 def test_lr_binom_model_simple(simple_df):
@@ -10,7 +10,7 @@ def test_lr_binom_model_simple(simple_df):
         col_total='total'
     )
     specs.configure_data(simple_df)
-    model = LRBinomModel()
+    model = BinomialModel()
     model.attach_specs(lr_specs=specs)
     objective = model.objective(x=np.array([2]), data=specs.data)
     grad = model.gradient(x=np.array([2]), data=specs.data)
@@ -25,7 +25,7 @@ def test_lr_binom_one_cov(df):
         covariates=['x1']
     )
     specs.configure_data(df)
-    model = LRBinomModel()
+    model = BinomialModel()
     model.attach_specs(lr_specs=specs)
     objective = model.objective(x=np.array([0, 2]), data=specs.data)
     grad = model.gradient(x=np.array([0, 2]), data=specs.data)

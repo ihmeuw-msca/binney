@@ -1,4 +1,0 @@
-
-
-class FlipperException(Exception):
-    pass

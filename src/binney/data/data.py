@@ -9,9 +9,9 @@ from anml.parameter.parameter import Parameter, ParameterSet
 from anml.parameter.spline_variable import Spline
 from anml.parameter.variables import Variable, Intercept
 from anml.parameter.processors import process_all
-from flipper import FlipperException
-from flipper.utils import expit
-from flipper.data.splines import make_spline_variables
+from binney import BinneyException
+from binney.utils import expit
+from binney.data.splines import make_spline_variables
 
 
 # The format for data needs to have two columns
@@ -19,7 +19,7 @@ from flipper.data.splines import make_spline_variables
 # and can have outcomes of 0's and 1's
 
 
-class BinomDataError(FlipperException):
+class BinomDataError(BinneyException):
     pass
 
 

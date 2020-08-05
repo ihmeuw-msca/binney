@@ -1,11 +1,11 @@
-flipper.data package
+binney.data package
 =====================
 
 Data Module
 -----------
 
 
-.. automodule:: flipper.data.data
+.. automodule:: binney.data.data
     :members:
     :undoc-members:
     :show-inheritance:
@@ -15,7 +15,7 @@ Spline Module
 -------------
 
 
-.. automodule:: flipper.data.splines
+.. automodule:: binney.data.splines
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,5 +1,5 @@
 import numpy as np
-from flipper.data.data import LRSpecs, BinomDataSpecs
+from binney.data.data import LRSpecs, BinomDataSpecs
 
 
 def test_binom_data_specs():

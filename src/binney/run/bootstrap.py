@@ -2,14 +2,14 @@ from copy import deepcopy
 
 import numpy as np
 import pandas as pd
-from flipper.data.data import LRSpecs
-from flipper.model.model import LRBinomModel
+from binney.data.data import LRSpecs
+from binney.model.model import BinomialModel
 
 from anml.bootstrap.bootstrap import Bootstrap
 
 
-class FlipperBootstrap(Bootstrap):
-    def __init__(self, model: LRBinomModel, df: pd.DataFrame, **kwargs):
+class BinneyBootstrap(Bootstrap):
+    def __init__(self, model: BinomialModel, df: pd.DataFrame, **kwargs):
 
         super().__init__(model=model, **kwargs)
         self.df = df
@@ -25,7 +25,7 @@ class FlipperBootstrap(Bootstrap):
         raise NotImplementedError()
 
 
-class BinomialBootstrap(FlipperBootstrap):
+class BinomialBootstrap(BinneyBootstrap):
     """
     Non-parametric bootstrap implementation for the BinomRun
     modeling process.
@@ -61,7 +61,7 @@ class BinomialBootstrap(FlipperBootstrap):
         fit_callable(solver=self.solver, data=self.lr_specs.data, **kwargs)
 
 
-class BernoulliBootstrap(FlipperBootstrap):
+class BernoulliBootstrap(BinneyBootstrap):
     """
     Non-parametric bootstrap implementation for a dataset with 1's and 0's
     in a logistic regression modeling process.

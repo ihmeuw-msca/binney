@@ -4,11 +4,11 @@ from anml.models.interface import Model
 from anml.data.data import Data
 from anml.parameter.utils import build_linear_constraint
 
-from flipper.data.data import LRSpecs
-from flipper.utils import expit
+from binney.data.data import LRSpecs
+from binney.utils import expit
 
 
-class LRBinomModel(Model):
+class BinomialModel(Model):
 
     def __init__(self):
 

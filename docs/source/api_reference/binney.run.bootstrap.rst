@@ -1,16 +1,16 @@
-flipper.run.bootstrap package
+binney.run.bootstrap package
 =============================
 
 Bootstrap Classes
 -----------------
 
-.. autoclass:: flipper.run.bootstrap.BernoulliBootstrap
+.. autoclass:: binney.run.bootstrap.BernoulliBootstrap
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-.. autoclass:: flipper.run.bootstrap.BinomialBootstrap
+.. autoclass:: binney.run.bootstrap.BinomialBootstrap
     :members:
     :undoc-members:
     :show-inheritance:
