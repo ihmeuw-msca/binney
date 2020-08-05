@@ -2,5 +2,5 @@
     :target: https://travis-ci.com/ihmeuw-msca/flipper
 
 ====================================================
-flipper: Logistic regression modeling with b-splines
+flipper: Binomial regression modeling with b-splines
 ====================================================
