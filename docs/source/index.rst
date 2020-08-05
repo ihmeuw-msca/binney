@@ -10,6 +10,8 @@ Welcome to flipper's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   api_reference/index
+
 
 
 Indices and tables
