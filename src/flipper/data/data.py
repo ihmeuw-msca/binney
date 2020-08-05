@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional, List, Dict, Any
 
+import pandas as pd
+
 from anml.data.data import Data
 from anml.data.data import DataSpecs
 from anml.parameter.parameter import Parameter, ParameterSet
@@ -84,10 +86,33 @@ class LRSpecs:
             param_set=self.parameter_set
         )
 
-    def configure_data(self, df):
+    def configure_data(self, df: pd.DataFrame):
 
         self.data.process_data(df=df)
         for var in self.parameter_set.variables:
             var.build_design_matrix_fe(df=df)
+            var.build_constraint_matrix_fe()
+        process_all(self.parameter_set, df)
+
+    def configure_new_data(self, df: pd.DataFrame):
+        """
+        Processes a new data frame so that it will create
+        a new design matrix.
+
+        Parameters
+        ----------
+        df
+            Data frame with covariates in the original form
+            as before, but with a new design matrix.
+
+        Returns
+        -------
+
+        """
+        for var in self.parameter_set.variables:
+            if isinstance(var, Spline):
+                var.build_design_matrix_fe(df=df, create_spline=False)
+            else:
+                var.build_design_matrix_fe(df=df)
             var.build_constraint_matrix_fe()
         process_all(self.parameter_set, df)
