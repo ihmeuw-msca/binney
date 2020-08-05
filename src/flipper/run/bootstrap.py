@@ -5,10 +5,10 @@ import pandas as pd
 from flipper.data.data import LRSpecs
 from flipper.model.model import LRBinomModel
 
-from anml.bootstrap.nonparametric import NPBootstrap
+from anml.bootstrap.bootstrap import Bootstrap
 
 
-class FlipperBootstrap(NPBootstrap):
+class FlipperBootstrap(Bootstrap):
     def __init__(self, model: LRBinomModel, df: pd.DataFrame, **kwargs):
 
         super().__init__(model=model, **kwargs)

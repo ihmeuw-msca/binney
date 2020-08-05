@@ -66,7 +66,7 @@ def test_bootstrap_run(df, n):
     uis = np.quantile(b_run.bootstrap.parameters, q=[0.025, 0.975], axis=0)
     assert all(b_run.params_opt > uis[0, :])
     assert all(b_run.params_opt < uis[1, :])
-    draws = b_run.predict_draws()
+    draws = b_run.predict_draws(df=df)
     assert draws.shape == (15, n)
     assert all(draws.var(axis=1) > 0)
 
@@ -92,6 +92,6 @@ def test_bernoulli_run(bernoulli_df, n):
     uis = np.quantile(b_run.bootstrap.parameters, q=[0.025, 0.975], axis=0)
     assert all(b_run.params_opt > uis[0, :])
     assert all(b_run.params_opt < uis[1, :])
-    draws = b_run.predict_draws()
+    draws = b_run.predict_draws(df=bernoulli_df)
     assert draws.shape == (15, n)
     assert all(draws.var(axis=1) > 0)
