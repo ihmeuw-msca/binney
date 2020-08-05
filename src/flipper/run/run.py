@@ -89,15 +89,12 @@ class FlipperRun:
             self.lr_specs.configure_new_data(df=new_df)
             return self.model.forward(self.params_opt, mat=self.lr_specs.parameter_set.design_matrix_fe)
 
-    def predict_draws(self, new_df: Optional[pd.DataFrame] = None) -> np.ndarray:
+    def predict_draws(self, df: pd.DataFrame) -> np.ndarray:
         draw_matrix = []
         for i in range(self.bootstrap.parameters.shape[0]):
-            if new_df is None:
-                draws = self.model.forward(x=self.bootstrap.parameters[i, :])
-            else:
-                self.bootstrap.lr_specs.configure_new_data(df=new_df)
-                draws = self.model.forward(x=self.bootstrap.parameters[i, :],
-                                           mat=self.bootstrap.lr_specs.parameter_set.design_matrix_fe)
+            self.bootstrap.lr_specs.configure_new_data(df=df)
+            draws = self.model.forward(x=self.bootstrap.parameters[i, :],
+                                       mat=self.bootstrap.lr_specs.parameter_set.design_matrix_fe)
             draw_matrix.append(draws)
         draw_matrix = np.vstack(draw_matrix)
         return draw_matrix
