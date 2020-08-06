@@ -31,6 +31,9 @@ release = about["__version__"]
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
+needs_sphinx = '1.5'
+
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
