@@ -2,5 +2,5 @@
     :target: https://travis-ci.com/ihmeuw-msca/binney
 
 ====================================================
-flipper: Binomial regression modeling with b-splines
+binney: Binomial regression modeling with b-splines
 ====================================================
