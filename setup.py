@@ -16,7 +16,8 @@ if __name__ == '__main__':
         'numpy',
         'pandas',
         'xspline',
-        'anml'
+        'anml',
+        'click'
     ]
 
     test_requirements = [
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     ]
 
     doc_requirements = [
-        'sphinx<2.1',
+        'sphinx>=3.0.0',
         'sphinx-autodoc-typehints',
         'sphinx-rtd-theme',
         'sphinx-click',
