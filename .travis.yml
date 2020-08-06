@@ -1,14 +1,17 @@
 language: python
 python:
-  - 3.8
+- 3.8
 before_install:
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda3/bin:$PATH
-  - conda update --yes conda
+- wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+- chmod +x miniconda.sh
+- "./miniconda.sh -b"
+- export PATH=/home/travis/miniconda3/bin:$PATH
+- conda update --yes conda
 install:
-  - conda install -c conda-forge cyipopt --yes
-  - pip install .[test]
+- conda install -c conda-forge cyipopt --yes
+- pip install .[test]
 script:
-  - pytest
+- pytest
+deploy:
+  password:
+    secure: tiBAB9mbma8XVOWEDYQdUQMmrA034PYUCXFMbMp5l5R7eaIoUHDQ5uf0kMyyyztI0X2QxDOYHinO7i9dRBuBof6Q841/2hjgvB/rRuw2xcR84/uJP4rqj5PKFBiEHXyXO43JVvwltA45Jt28RoAeQu7SX2JP/wQKQMTAsTO+e35JuKeUHrJKUSp8DvglOGRVKZft8f4Ph1VBNEVl6CI9s6bKACIii5BMvo/tXBsQkKZWodWyB9PJuOsheKMfjtyjXyZtCUiwgC8KSESxR6M5TEUcUOvbNilyFZJzLp4h54T2ie2SMswYK5wvHii86HsJ7IOrmVF1TOYWyhcBHXaJ8KCi4+KaOOTHH+FrOU+pybGv93qk8QP41XmtxYoSUIL1YVqgUs0cyu4IHFwvCsPwTahuXnj4IeIqF7uyyRBspDM+ujc4y75dpVGG1IL2X13cAAatMXeCm3OUW6MVbfRHL+FyUOH/5eSvbQ9phvDCfKuGC31bS2Kt4ZwNohg3QZH1jW+3jZlkJZeFdRMUaJ7y4LUAg5ISODINUa2xvc/4/GuzwfkusFOgvEoT+akrLSbg1aYMKXJtMloK3Df63KjxZQXlnAt37ueeZWMeaZAhApIUXX7/IS2BdUb0sAWmQYAKjhzH/e/6Y4X7vjSbForLqh+VREE6fbpZzssjhDMXIuQ=
