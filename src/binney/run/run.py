@@ -37,7 +37,7 @@ class BinneyRun:
 
 
         but where :math:`n_i = 1` if you have Bernoulli data.
-        The goal is to estimate :math:`p` where :math:`p` is the logit of some linear predictor,
+        The goal is to estimate :math:`p` where :math:`p` is the expit of some linear predictor,
         which may also contain include splines for different covariates. The linear
         predictor will automatically include an intercept, so do not specify one
         in your covariates.
