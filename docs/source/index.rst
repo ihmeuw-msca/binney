@@ -6,12 +6,39 @@
 Welcome to binney's documentation!
 ===================================
 
+:code:`binney` is a package for doing binomial regression
+(including logistic regression) with b-splines! See below
+for installation instructions.
+
+Installation
+------------
+
+You can install :code:`binney` with :code:`pip`:
+
+```
+pip install binney
+```
+
+You will also need to install :code:`ipopt`, which is an interior
+point optimizer, with conda.
+
+```
+conda install -c conda-forge cyipopt
+```
+
+You can check to see if your installation worked correctly with :code:`pytest`.
+
+```
+# pip install pytest
+cd binney
+pytest
+```
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    api_reference/index
-
 
 
 Indices and tables
