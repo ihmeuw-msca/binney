@@ -11,6 +11,9 @@ from binney.utils import expit
 class BinomialModel(Model):
 
     def __init__(self):
+        """
+        Binomial regression model with constraints.
+        """
 
         super().__init__()
         self.p_specs = None
@@ -41,7 +44,7 @@ class BinomialModel(Model):
             for i in range(len(m))
         ])
 
-    def objective(self, x: np.ndarray, data: Data):
+    def objective(self, x: np.ndarray, data: Data) -> float:
         y = data.data['obs']
         m = data.data['total']
         return self._g(m, x, self.design_matrix) - y.T.dot(self.design_matrix).dot(x)
@@ -54,7 +57,7 @@ class BinomialModel(Model):
         ])
         return design_matrix.T.dot(np.diag(m)).dot(inner)
 
-    def gradient(self, x: np.ndarray, data: Data):
+    def gradient(self, x: np.ndarray, data: Data) -> float:
         y = data.data['obs']
         m = data.data['total']
         return self._grad_g(m, x, self.design_matrix) - self.design_matrix.T.dot(y)

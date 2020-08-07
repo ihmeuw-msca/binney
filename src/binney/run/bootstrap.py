@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 from binney.data.data import LRSpecs
-from binney.model.model import BinomialModel
+from binney.model.bin_model import BinomialModel
 
 from anml.bootstrap.bootstrap import Bootstrap
 
