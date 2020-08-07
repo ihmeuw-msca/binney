@@ -6,11 +6,14 @@ from copy import copy
 from anml.solvers.interface import Solver
 from anml.solvers.base import ScipyOpt, IPOPTSolver
 from anml.data.data import Data
+from anml.data.data_specs import DataSpecs
 
-from binney.model.model import BinomialModel
+from binney.model.bin_model import BinomialModel
 from binney.data.data import LRSpecs
 from binney.run.bootstrap import BinomialBootstrap, BernoulliBootstrap
 from binney import BinneyException
+from binney.residuals.residual_model import ResidualModel
+from binney.utils import logit, expit
 
 
 class RunException(BinneyException):
@@ -22,7 +25,7 @@ class BinneyRun:
                  covariates: Optional[List[str]] = None,
                  splines: Optional[Dict[str, Dict[str, Any]]] = None,
                  solver_method: str = 'scipy', solver_options: Optional[Dict[str, Any]] = None,
-                 data_type: str = 'bernoulli'):
+                 data_type: str = 'bernoulli', col_group: Optional[str] = None):
         """
         Create a model run with binney. The model can handle either binomial data or Bernoulli data.
         If you have binomial data, your data will look something like "k successes out
@@ -92,6 +95,8 @@ class BinneyRun:
             A dictionary of options to pass to your desired solver.
         data_type
             The data type: one of "bernoulli" or "binomial"
+        col_group
+            The group column. Not used. If you want to model with random effects, use :class:`BinneyResidualRun`.
 
         Attributes
         ----------
@@ -116,6 +121,7 @@ class BinneyRun:
         self.lr_specs = LRSpecs(
             col_success=col_success,
             col_total=col_total,
+            col_group=col_group,
             covariates=covariates,
             splines=splines
         )
@@ -226,3 +232,59 @@ class BinneyRun:
             n_bootstraps=n_boots,
             fit_callable=self._fit
         )
+
+
+class BinneyResidualsRun(BinneyRun):
+    def __init__(self, col_group: str, **kwargs):
+        super().__init__(**kwargs)
+
+        self.residual_specs = DataSpecs(col_obs=self._col_residual, col_groups=[col_group])
+        self.residual_model = ResidualModel(data_specs=self.residual_specs)
+
+    @property
+    def _col_residual(self):
+        return 'residual'
+
+    @property
+    def _col_group(self):
+        return self.residual_model.col_group
+
+    @property
+    def _logit_p_obs(self) -> np.ndarray:
+        return logit(self.lr_specs.data['obs'] / self.lr_specs.data['total'])
+
+    @property
+    def _groups(self) -> np.ndarray:
+        return self.lr_specs.data['groups']
+
+    @property
+    def _logit_p_hat(self) -> np.ndarray:
+        return logit(self._predict())
+
+    @property
+    def _residuals(self):
+        return self._logit_p_obs - self._logit_p_hat
+
+    def predict(self, new_df: Optional[pd.DataFrame] = None) -> np.ndarray:
+        """
+        Make predictions based on optimal parameter values.
+
+        Parameters
+        ----------
+        new_df
+            A pandas data frame to make predictions for. Must have all of the covariates
+            used in the fitting.
+
+        Returns
+        -------
+        A numpy array of predictions for the data frame.
+        """
+        p_hat = self._predict(new_df=new_df)
+        p_obs = new_df[self.lr_specs.data_specs.col_obs] / new_df[self.lr_specs.data_specs.col_total]
+
+        residual_df = pd.DataFrame({
+            self._col_residual: logit(p_obs) - logit(p_hat),
+            self._col_group: new_df[self._col_group].values
+        })
+
+        self.residual_model.fit_model()

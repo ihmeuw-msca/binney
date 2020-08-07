@@ -33,7 +33,7 @@ class BinomDataSpecs(DataSpecs):
 
 
 class LRSpecs:
-    def __init__(self, col_success: str, col_total: str,
+    def __init__(self, col_success: str, col_total: str, col_group: Optional[str] = None,
                  covariates: Optional[List[str]] = None,
                  splines: Optional[Dict[str, Dict[str, Any]]] = None):
         """
@@ -55,9 +55,14 @@ class LRSpecs:
             decreasing (monotonic decreasing constraint), concave, and convex.
         """
 
+        if col_group is None:
+            col_groups = None
+        else:
+            col_groups = [col_group]
         self.data_specs = BinomDataSpecs(
             col_obs=col_success,
             col_total=col_total,
+            col_groups=col_groups
         )
 
         intercept = [Intercept()]
