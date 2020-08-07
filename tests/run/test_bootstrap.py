@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from binney.model.model import BinomialModel
+from binney.model.bin_model import BinomialModel
 from binney.run.run import BinneyRun
 from binney.run.bootstrap import BinomialBootstrap, BernoulliBootstrap
 

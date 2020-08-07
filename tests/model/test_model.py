@@ -1,7 +1,7 @@
 import numpy as np
 
 from binney.data.data import LRSpecs
-from binney.model.model import BinomialModel
+from binney.model.bin_model import BinomialModel
 
 
 def test_lr_binom_model_simple(simple_df):
