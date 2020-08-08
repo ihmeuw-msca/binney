@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
+import numpy as np
 
 import pandas as pd
 
@@ -7,6 +8,7 @@ from anml.data.data import Data
 from anml.data.data import DataSpecs
 from anml.parameter.parameter import Parameter, ParameterSet
 from anml.parameter.spline_variable import Spline
+from anml.parameter.prior import GaussianPrior
 from anml.parameter.variables import Variable, Intercept
 from anml.parameter.processors import process_all
 from binney import BinneyException
@@ -35,7 +37,9 @@ class BinomDataSpecs(DataSpecs):
 class LRSpecs:
     def __init__(self, col_success: str, col_total: str,
                  covariates: Optional[List[str]] = None,
-                 splines: Optional[Dict[str, Dict[str, Any]]] = None):
+                 splines: Optional[Dict[str, Dict[str, Any]]] = None,
+                 coefficient_priors: Optional[Dict[str, List[float]]] = None,
+                 coefficient_prior_var: Optional[float] = None):
         """
         Specifications for a logistic regression data set and parameters,
         including splines and spline derivative constraints.
@@ -59,18 +63,41 @@ class LRSpecs:
             col_obs=col_success,
             col_total=col_total,
         )
-
-        intercept = [Intercept()]
+        if coefficient_priors is not None:
+            if 'intercept' in coefficient_priors:
+                intercept = [Intercept(
+                    fe_prior=GaussianPrior(
+                        mean=coefficient_priors['intercept'],
+                        std=[coefficient_prior_var**0.5]
+                    )
+                )]
+            else:
+                intercept = [Intercept()]
+        else:
+            intercept = [Intercept()]
         if covariates is not None:
-            covariate_variables = [
-                Variable(covariate=cov) for cov in covariates
-            ]
+            if coefficient_priors is None:
+                covariate_variables = [
+                    Variable(covariate=cov) for cov in covariates
+                ]
+            else:
+                covariate_variables = [
+                    Variable(
+                        covariate=cov,
+                        fe_prior=GaussianPrior(
+                            mean=coefficient_priors[cov],
+                            std=[coefficient_prior_var**0.5]
+                        )
+                    ) for cov in covariates
+                ]
         else:
             covariate_variables = list()
 
         spline_variables = list()
         if splines is not None:
-            spline_variables = make_spline_variables(splines)
+            spline_variables = make_spline_variables(splines,
+                                                     coefficient_priors,
+                                                     coefficient_prior_var)
 
         parameter = Parameter(
             param_name='p',

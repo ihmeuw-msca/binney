@@ -44,7 +44,15 @@ class BinomialModel(Model):
     def objective(self, x: np.ndarray, data: Data):
         y = data.data['obs']
         m = data.data['total']
-        return self._g(m, x, self.design_matrix) - y.T.dot(self.design_matrix).dot(x)
+
+        val = 0.
+        val += self._g(m, x, self.design_matrix) - y.T.dot(self.design_matrix).dot(x)
+
+        i = 0
+        for variable in self.p_specs.variables:
+            val += np.sum(variable.prior.error_val(x[i:i + variable.num_fe]))
+            i += variable.num_fe
+        return val
 
     @staticmethod
     def _grad_g(m, x, design_matrix):
@@ -57,7 +65,14 @@ class BinomialModel(Model):
     def gradient(self, x: np.ndarray, data: Data):
         y = data.data['obs']
         m = data.data['total']
-        return self._grad_g(m, x, self.design_matrix) - self.design_matrix.T.dot(y)
+        val = 0.
+        val += self._grad_g(m, x, self.design_matrix) - self.design_matrix.T.dot(y)
+
+        i = 0
+        for variable in self.p_specs.variables:
+            val += np.sum(variable.prior.error_val(x[i:i+variable.num_fe]))
+            i += variable.num_fe
+        return val
 
     def forward(self, x: np.ndarray, mat: Optional[np.ndarray] = None):
         if mat is None:
