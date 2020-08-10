@@ -36,9 +36,10 @@ class BinomDataSpecs(DataSpecs):
 
 class LRSpecs:
     def __init__(self, col_success: str, col_total: str,
+                 col_group: Optional[str] = None,
                  covariates: Optional[List[str]] = None,
                  splines: Optional[Dict[str, Dict[str, Any]]] = None,
-                 coefficient_priors: Optional[Dict[str, List[float]]] = None,
+                 coefficient_priors: Optional[List[float]] = None,
                  coefficient_prior_var: Optional[float] = None):
         """
         Specifications for a logistic regression data set and parameters,
@@ -50,6 +51,8 @@ class LRSpecs:
             The column name of the count outcome, or the number of "successes".
         col_total
             The column name of the total, or the number of trials.
+        col_group
+            Optional grouping column.
         covariates
             List of covariate names to include as fixed effects.
         splines
@@ -59,43 +62,60 @@ class LRSpecs:
             decreasing (monotonic decreasing constraint), concave, and convex.
         """
 
+        self.covariates = covariates
+        self.splines = splines
+        self.parameter_set = None
+
+        if col_group is not None:
+            col_groups = [col_group]
+        else:
+            col_groups = None
         self.data_specs = BinomDataSpecs(
             col_obs=col_success,
             col_total=col_total,
+            col_groups=col_groups
         )
+        self.make_parameter_set(
+            coefficient_priors=coefficient_priors,
+            coefficient_prior_var=coefficient_prior_var
+        )
+        self.data = Data(
+            data_specs=self.data_specs,
+            param_set=self.parameter_set
+        )
+
+    def make_parameter_set(self, coefficient_priors: Optional[List[float]] = None,
+                           coefficient_prior_var: Optional[float] = None):
         if coefficient_priors is not None:
-            if 'intercept' in coefficient_priors:
-                intercept = [Intercept(
-                    fe_prior=GaussianPrior(
-                        mean=coefficient_priors['intercept'],
-                        std=[coefficient_prior_var**0.5]
-                    )
-                )]
-            else:
-                intercept = [Intercept()]
+            intercept = [Intercept(
+                fe_prior=GaussianPrior(
+                    mean=[coefficient_priors.pop(0)],
+                    std=[coefficient_prior_var**0.5]
+                )
+            )]
         else:
             intercept = [Intercept()]
-        if covariates is not None:
+        if self.covariates is not None:
             if coefficient_priors is None:
                 covariate_variables = [
-                    Variable(covariate=cov) for cov in covariates
+                    Variable(covariate=cov) for cov in self.covariates
                 ]
             else:
                 covariate_variables = [
                     Variable(
                         covariate=cov,
                         fe_prior=GaussianPrior(
-                            mean=coefficient_priors[cov],
+                            mean=[coefficient_priors.pop(0)],
                             std=[coefficient_prior_var**0.5]
                         )
-                    ) for cov in covariates
+                    ) for cov in self.covariates
                 ]
         else:
             covariate_variables = list()
 
         spline_variables = list()
-        if splines is not None:
-            spline_variables = make_spline_variables(splines,
+        if self.splines is not None:
+            spline_variables = make_spline_variables(self.splines,
                                                      coefficient_priors,
                                                      coefficient_prior_var)
 
@@ -106,11 +126,6 @@ class LRSpecs:
         )
         self.parameter_set = ParameterSet(
             parameters=[parameter]
-        )
-
-        self.data = Data(
-            data_specs=self.data_specs,
-            param_set=self.parameter_set
         )
 
     def configure_data(self, df: pd.DataFrame):

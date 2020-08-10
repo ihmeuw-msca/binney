@@ -37,8 +37,8 @@ def test_lr_specs_with_prior(df, n):
         col_success='success',
         col_total='total',
         covariates=['x1'],
-        coefficient_priors={'x1': [0.]},
-        coefficient_prior_re=1.
+        coefficient_priors=[0., 0.],
+        coefficient_prior_var=1.
     )
     specs.configure_data(df)
     dd = specs.data._param_set[0].design_matrix_fe

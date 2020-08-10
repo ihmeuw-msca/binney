@@ -1,15 +1,16 @@
 import pandas as pd
 import numpy as np
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional
 from copy import copy
 
 from anml.solvers.interface import Solver
-from anml.solvers.base import ScipyOpt, IPOPTSolver
 from anml.data.data import Data
 
 from binney.model.model import BinomialModel
 from binney.data.data import LRSpecs
 from binney.run.bootstrap import BinomialBootstrap, BernoulliBootstrap
+from binney.solvers.hierarchical_solver import Hierarchy
+from binney.solvers.solver import ScipySolver, IpoptSolver
 from binney import BinneyException
 
 
@@ -22,7 +23,8 @@ class BinneyRun:
                  covariates: Optional[List[str]] = None,
                  splines: Optional[Dict[str, Dict[str, Any]]] = None,
                  solver_method: str = 'scipy', solver_options: Optional[Dict[str, Any]] = None,
-                 data_type: str = 'bernoulli'):
+                 data_type: str = 'bernoulli', col_group: Optional[str] = None,
+                 coefficient_prior_var: float = 1.):
         """
         Create a model run with binney. The model can handle either binomial data or Bernoulli data.
         If you have binomial data, your data will look something like "k successes out
@@ -92,6 +94,11 @@ class BinneyRun:
             A dictionary of options to pass to your desired solver.
         data_type
             The data type: one of "bernoulli" or "binomial"
+        col_group
+            An optional column name to define data groups.
+        coefficient_prior_var
+            An optional float to be used if you're passing in a col_group that determines the variance
+            assigned to the prior when passing down priors in a hierarchy for col_group
 
         Attributes
         ----------
@@ -110,6 +117,7 @@ class BinneyRun:
         if data_type not in ['bernoulli', 'binomial']:
             raise BinneyException(f"Data type must be one of 'bernoulli' or 'binomial'. "
                                    f"Got {data_type}.")
+
         self.data_type = data_type
 
         # Configure the data specs
@@ -127,12 +135,20 @@ class BinneyRun:
 
         # Set up the solver
         if solver_method == 'scipy':
-            self.solver = ScipyOpt(self.model)
+            solver = ScipySolver(model_instance=self.model)
         elif solver_method == 'ipopt':
-            self.solver = IPOPTSolver(self.model)
+            solver = IpoptSolver(model_instance=self.model)
         else:
             raise RunException(f"Unrecognized solver method {solver_method}."
                                "Please pass one of 'scipy' or 'ipopt'.")
+        solver.attach_lr_specs(lr_specs=self.lr_specs)
+        if col_group is None:
+            self.solver = solver
+        else:
+            self.solver = Hierarchy(
+                solver=solver,
+                coefficient_prior_var=coefficient_prior_var
+            )
         if solver_options is None:
             solver_options = dict()
         self.options = {
@@ -182,11 +198,7 @@ class BinneyRun:
         -------
         A numpy array of predictions for the data frame.
         """
-        if new_df is None:
-            return self.model.forward(self.params_opt)
-        else:
-            self.lr_specs.configure_new_data(df=new_df)
-            return self.model.forward(self.params_opt, mat=self.lr_specs.parameter_set.design_matrix_fe)
+        return self.solver.predict(new_df=new_df)
 
     def predict_draws(self, df: pd.DataFrame) -> np.ndarray:
         """
