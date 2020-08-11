@@ -12,6 +12,19 @@ from binney.solvers.solver import Base
 class Hierarchy(CompositeSolver):
 
     def __init__(self, solver: Base, coefficient_prior_var: float):
+        """
+        Hierarchical solver that first solves the problem with
+        all of the data, then uses those fixed effects as priors
+        for group-specific models.
+
+        Parameters
+        ----------
+        solver
+            Any solver.
+        coefficient_prior_var
+            Variance of the prior to pass down to the group-specific
+            models.
+        """
         super().__init__([solver])
 
         self.coefficient_prior_var = coefficient_prior_var
@@ -44,7 +57,6 @@ class Hierarchy(CompositeSolver):
     def predict(self, new_df: pd.DataFrame, x: Optional[Dict[str, np.ndarray]] = None):
         if x is None:
             x = self.x_opt
-
         predictions = np.empty(len(new_df))
         self.lr_specs.configure_data(new_df)
         unique_groups = np.unique(self.lr_specs.data.data['groups'].ravel())

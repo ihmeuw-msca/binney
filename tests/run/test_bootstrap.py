@@ -49,21 +49,21 @@ def test_bootstrap_run(df, n):
     )
     b_run.fit()
     b_run.make_uncertainty(n_boots=15)
-    assert b_run.bootstrap.parameters.shape == (15, 2)
+    assert np.vstack(b_run.bootstrap.parameters).shape == (15, 2)
     np.testing.assert_array_almost_equal(
-        b_run.bootstrap.parameters[0, :],
+        b_run.bootstrap.parameters[0],
         np.array([0.99940296, 1.99394325])
     )
     np.testing.assert_array_almost_equal(
-        b_run.bootstrap.parameters[5, :],
+        b_run.bootstrap.parameters[5],
         np.array([1.01366631, 1.99569274])
     )
     np.testing.assert_array_almost_equal(
-        b_run.bootstrap.parameters.mean(axis=0),
+        np.vstack(b_run.bootstrap.parameters).mean(axis=0),
         b_run.params_opt,
         decimal=1
     )
-    uis = np.quantile(b_run.bootstrap.parameters, q=[0.025, 0.975], axis=0)
+    uis = np.quantile(np.vstack(b_run.bootstrap.parameters), q=[0.025, 0.975], axis=0)
     assert all(b_run.params_opt > uis[0, :])
     assert all(b_run.params_opt < uis[1, :])
     draws = b_run.predict_draws(df=df)
@@ -83,13 +83,13 @@ def test_bernoulli_run(bernoulli_df, n):
     )
     b_run.fit()
     b_run.make_uncertainty(n_boots=15)
-    assert b_run.bootstrap.parameters.shape == (15, 2)
+    assert np.vstack(b_run.bootstrap.parameters).shape == (15, 2)
     np.testing.assert_array_almost_equal(
-        b_run.bootstrap.parameters.mean(axis=0),
+        np.vstack(b_run.bootstrap.parameters).mean(axis=0),
         b_run.params_opt,
         decimal=1
     )
-    uis = np.quantile(b_run.bootstrap.parameters, q=[0.025, 0.975], axis=0)
+    uis = np.quantile(np.vstack(b_run.bootstrap.parameters), q=[0.025, 0.975], axis=0)
     assert all(b_run.params_opt > uis[0, :])
     assert all(b_run.params_opt < uis[1, :])
     draws = b_run.predict_draws(df=bernoulli_df)

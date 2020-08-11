@@ -100,7 +100,7 @@ def new_df(intercept, slope, n):
 
 @pytest.fixture(scope='session')
 def group_data(intercept, slope, n):
-    np.random.seed(111)
+    np.random.seed(201)
     n_groups = 5
     x = np.random.randn(n)
     u = np.random.randn(n_groups)

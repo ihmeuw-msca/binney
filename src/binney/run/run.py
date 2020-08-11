@@ -8,7 +8,7 @@ from anml.data.data import Data
 
 from binney.model.model import BinomialModel
 from binney.data.data import LRSpecs
-from binney.run.bootstrap import BinomialBootstrap, BernoulliBootstrap
+from binney.run.bootstrap import BinomialBootstrap, BernoulliBootstrap, BernoulliStratifiedBootstrap
 from binney.solvers.hierarchical_solver import Hierarchy
 from binney.solvers.solver import ScipySolver, IpoptSolver
 from binney import BinneyException
@@ -48,6 +48,14 @@ class BinneyRun:
         type of bootstrap re-sampling will depend on whether you have binomial or Bernoulli
         type data. It is not enforced strictly, but **do not mix the two types of data**,
         as it will give inaccurate uncertainty quantification.
+
+        If you pass in a group column name, then it will fit multiple models. First,
+        it will fit a model with all of the data. Then it will use those parameter estimates
+        as Gaussian priors for each of the individual groups in the data. You can put
+        more or less weight on these priors using the coefficient prior variance argument,
+        :code:`coefficient_prior_var`. If you want to give more weight to the prior,
+        decrease this. If you want to give more weight to the group-specific data,
+        increase this.
 
         Parameters
         ----------
@@ -98,7 +106,7 @@ class BinneyRun:
             An optional column name to define data groups.
         coefficient_prior_var
             An optional float to be used if you're passing in a col_group that determines the variance
-            assigned to the prior when passing down priors in a hierarchy for col_group
+            assigned to the prior when passing down priors in a hierarchy for col_group.
 
         Attributes
         ----------
@@ -125,7 +133,8 @@ class BinneyRun:
             col_success=col_success,
             col_total=col_total,
             covariates=covariates,
-            splines=splines
+            splines=splines,
+            col_group=col_group
         )
         self.lr_specs.configure_data(df=df)
 
@@ -156,11 +165,18 @@ class BinneyRun:
         }
 
         # Configure bootstrap object based on
-        # the data type
+        # the data type and whether or not there should
+        # be stratified re-sampling
         if data_type == 'bernoulli':
-            self.bootstrap = BernoulliBootstrap(
-                solver=self.solver, model=self.model, df=df
-            )
+            if col_group is not None:
+                self.bootstrap = BernoulliStratifiedBootstrap(
+                    solver=self.solver, model=self.model, df=df,
+                    col_group=col_group
+                )
+            else:
+                self.bootstrap = BernoulliBootstrap(
+                    solver=self.solver, model=self.model, df=df
+                )
         elif data_type == 'binomial':
             self.bootstrap = BinomialBootstrap(
                 solver=self.solver, model=self.model, df=df
@@ -215,10 +231,11 @@ class BinneyRun:
         A stacked numpy array of draws for each row in the :code:`df`.
         """
         draw_matrix = []
-        for i in range(self.bootstrap.parameters.shape[0]):
-            self.bootstrap.lr_specs.configure_new_data(df=df)
-            draws = self.model.forward(x=self.bootstrap.parameters[i, :],
-                                       mat=self.bootstrap.lr_specs.parameter_set.design_matrix_fe)
+        for params in self.bootstrap.parameters:
+            draws = self.solver.predict(
+                x=params,
+                new_df=df
+            )
             draw_matrix.append(draws)
         draw_matrix = np.vstack(draw_matrix)
         return draw_matrix

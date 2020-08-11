@@ -90,3 +90,21 @@ class BernoulliBootstrap(BinneyBootstrap):
         self.model.detach_specs()
         self.model.attach_specs(self.lr_specs)
         fit_callable(solver=self.solver, data=self.lr_specs.data, **kwargs)
+
+
+class BernoulliStratifiedBootstrap(BernoulliBootstrap):
+    """
+    Non-parametric bootstrap implementation for the BinomRun
+    modeling process, but with stratified re-sampling for groups
+    when there is bernoulli data.
+    """
+    def __init__(self, col_group, **kwargs):
+        super().__init__(**kwargs)
+        self.col_group = col_group
+
+    def _sample(self, df: pd.DataFrame) -> pd.DataFrame:
+        sample_df = df.copy()
+        sample_df = sample_df.groupby(
+            self.col_group, group_keys=False
+        ).apply(lambda x: x.sample(len(x), replace=True))
+        return sample_df
