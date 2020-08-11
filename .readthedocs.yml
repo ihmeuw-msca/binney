@@ -6,7 +6,7 @@ python:
  version: 3.7
  install:
     - requirements: docs/requirements-doc.txt
-    - method: setuptools
+    - method: pip
       path: .
       extra_requirements:
         - docs
