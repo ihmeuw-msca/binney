@@ -103,7 +103,7 @@ about all of the arguments to the function.
        col_total='total',
        df=df,
        splines=splines,
-       solver_method='ipopt',
+       solver_method='scipy',
        data_type='binomial'
    )
 
@@ -152,7 +152,7 @@ We can fit the model and create predictions from it.
        col_total='total',
        df=df,
        splines=splines,
-       solver_method='ipopt',
+       solver_method='scipy',
        data_type='binomial'
    )
    b_run.fit()
