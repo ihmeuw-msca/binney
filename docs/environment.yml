@@ -1,7 +1,0 @@
-name: binney
-channels:
-  - conda-forge
-  - defaults
-dependencies:
-  - cython=0.28.0
-  - cyipopt
