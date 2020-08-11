@@ -7,7 +7,7 @@ __title__ = "binney"
 __summary__ = "binney: logistic regression tool-kit"
 __uri__ = "https://github.com/ihmeuw-msca/flipper"
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 __author__ = "IHME Math Sciences"
 __email__ = "ihme.math.sciences@gmail.com"
