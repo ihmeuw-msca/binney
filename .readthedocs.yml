@@ -8,11 +8,6 @@ python:
     - requirements: docs/requirements-doc.txt
     - method: setuptools
       path: .
-      extra_requirements:
-          - docs
-          - test
-    - method: setuptools
-      path: .
  system_packages: true
 sphinx:
   configuration: docs/source/conf.py
