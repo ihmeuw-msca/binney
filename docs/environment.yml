@@ -1,7 +1,7 @@
-name: environment
+name: binney
 channels:
   - conda-forge
+  - defaults
 dependencies:
-  - python=3.7
   - cython=0.28.0
   - cyipopt
