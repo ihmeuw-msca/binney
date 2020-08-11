@@ -8,8 +8,11 @@ python:
     - requirements: docs/requirements-doc.txt
     - method: setuptools
       path: .
+      extra_requirements:
+        - docs
+        - test
  system_packages: true
 sphinx:
   configuration: docs/source/conf.py
 conda:
-  environment: docs/source/environment.yml
+  environment: docs/environment.yml

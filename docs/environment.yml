@@ -1,2 +1,5 @@
-cython==0.28.0
-cyipopt
+name: environment
+dependencies:
+  - python=3.7
+  - cython=0.28.0
+  - cyipopt
