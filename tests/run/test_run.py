@@ -158,3 +158,29 @@ def test_new_data(df, new_df):
 
     assert predict_1.shape == predict_2.shape
     assert all(predict_1 != predict_2)
+
+
+def test_hierarchy_run(group_data):
+    b_run = BinneyRun(
+        col_success='success',
+        col_total='total',
+        covariates=['x1'],
+        df=group_data,
+        solver_method='ipopt'
+    )
+    b_run.fit()
+    preds = b_run.predict(new_df=group_data)
+    b_run_grp = BinneyRun(
+        col_success='success',
+        col_total='total',
+        covariates=['x1'],
+        df=group_data,
+        solver_method='ipopt',
+        col_group='g',
+        coefficient_prior_var=5.
+    )
+    b_run_grp.fit()
+    preds_grp = b_run_grp.predict(new_df=group_data)
+    res = preds - group_data['p']
+    res_grp = preds_grp - group_data['p']
+    assert (np.abs(res) > np.abs(res_grp)).mean() >= 0.975

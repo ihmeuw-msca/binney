@@ -13,26 +13,32 @@ class BinomialModel(Model):
     def __init__(self):
 
         super().__init__()
-        self.p_specs = None
+        self.lr_specs = None
         self.C = None
         self.c_lb = None
         self.c_ub = None
 
+    @property
+    def parameter_set(self):
+        return self.lr_specs.parameter_set
+
     def attach_specs(self, lr_specs: LRSpecs):
-        self.p_specs = lr_specs.parameter_set
+        self.lr_specs = lr_specs
         self.C, self.c_lb, self.c_ub = build_linear_constraint([
-            (self.p_specs.constr_matrix_fe, self.p_specs.constr_lb_fe, self.p_specs.constr_ub_fe),
+            (self.parameter_set.constr_matrix_fe,
+             self.parameter_set.constr_lb_fe,
+             self.parameter_set.constr_ub_fe),
         ])
 
     def detach_specs(self):
-        self.p_specs = None
+        self.lr_specs = None
         self.C = None
         self.c_lb = None
         self.c_ub = None
 
     @property
     def design_matrix(self):
-        return self.p_specs.design_matrix_fe
+        return self.parameter_set.design_matrix_fe
 
     @staticmethod
     def _g(m, x, design_matrix):
@@ -44,7 +50,15 @@ class BinomialModel(Model):
     def objective(self, x: np.ndarray, data: Data):
         y = data.data['obs']
         m = data.data['total']
-        return self._g(m, x, self.design_matrix) - y.T.dot(self.design_matrix).dot(x)
+
+        val = 0.
+        val += self._g(m, x, self.design_matrix) - y.T.dot(self.design_matrix).dot(x)
+
+        i = 0
+        for variable in self.parameter_set.variables:
+            val += np.sum(variable.fe_prior.error_value(x[i:i + variable.num_fe]))
+            i += variable.num_fe
+        return val
 
     @staticmethod
     def _grad_g(m, x, design_matrix):
@@ -57,7 +71,14 @@ class BinomialModel(Model):
     def gradient(self, x: np.ndarray, data: Data):
         y = data.data['obs']
         m = data.data['total']
-        return self._grad_g(m, x, self.design_matrix) - self.design_matrix.T.dot(y)
+        val = 0.
+        val += self._grad_g(m, x, self.design_matrix) - self.design_matrix.T.dot(y)
+
+        i = 0
+        for variable in self.parameter_set.variables:
+            val += np.sum(variable.fe_prior.grad(x[i:i+variable.num_fe]))
+            i += variable.num_fe
+        return val
 
     def forward(self, x: np.ndarray, mat: Optional[np.ndarray] = None):
         if mat is None:

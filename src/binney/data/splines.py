@@ -1,6 +1,8 @@
 import numpy as np
+from typing import Dict, Union, Optional, Any, List
 
 from anml.parameter.spline_variable import SplineLinearConstr, Spline
+from anml.parameter.prior import GaussianPrior
 from binney import BinneyException
 
 
@@ -31,7 +33,22 @@ SPLINE_CONSTR_DICT = {
 }
 
 
-def make_spline_variables(splines):
+def make_spline_variables(splines: Dict[str, Dict[str, Any]],
+                          coefficient_priors: Optional[Dict[str, List[float]]] = None,
+                          coefficient_prior_var: Optional[float] = None) -> List[Spline]:
+    """
+    Creates spline variables with optional coefficient priors and shape constraints.
+
+    Parameters
+    ----------
+    splines
+    coefficient_priors
+    coefficient_prior_var
+
+    Returns
+    -------
+    List of spline variables that can be used in a parameter.
+    """
     spline_variables = []
     for spline, options in splines.items():
         spline_constraints = list()
@@ -51,5 +68,11 @@ def make_spline_variables(splines):
             **options,
             derivative_constr=spline_constraints
         )
+        if coefficient_priors is not None:
+            fe_prior = GaussianPrior(
+                mean=coefficient_priors[spline],
+                std=[coefficient_prior_var] * len(coefficient_priors[spline])
+            )
+            spline_variable.fe_prior = fe_prior
         spline_variables.append(spline_variable)
     return spline_variables
