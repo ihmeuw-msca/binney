@@ -116,3 +116,25 @@ def group_data(intercept, slope, n):
         'u': np.repeat(u, repeats=n/n_groups)
     })
     return df
+
+
+@pytest.fixture(scope='session')
+def group_data_2(intercept, slope, n):
+    np.random.seed(201)
+    n_groups = 5
+    x1 = np.random.randn(n)
+    x2 = np.random.randn(n)
+    u = np.random.randn(n_groups)
+    us = np.repeat(u, repeats=n/n_groups)
+    g = np.arange(n_groups)
+    p = np.exp(intercept + x1 * slope + x2 + us) / (1 + np.exp(intercept + x1 * slope + x2 + us))
+    df = pd.DataFrame({
+        'success': np.random.binomial(n=100, size=len(p), p=p),
+        'total': np.repeat(100, repeats=len(p)),
+        'p': p,
+        'x1': x1,
+        'x2': x2,
+        'g': np.repeat(g, repeats=n/n_groups),
+        'u': np.repeat(u, repeats=n/n_groups)
+    })
+    return df

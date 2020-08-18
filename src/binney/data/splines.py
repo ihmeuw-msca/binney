@@ -34,7 +34,7 @@ SPLINE_CONSTR_DICT = {
 
 
 def make_spline_variables(splines: Dict[str, Dict[str, Any]],
-                          coefficient_priors: Optional[Dict[str, List[float]]] = None,
+                          coefficient_priors: Optional[List[float]] = None,
                           coefficient_prior_var: Optional[float] = None) -> List[Spline]:
     """
     Creates spline variables with optional coefficient priors and shape constraints.
@@ -68,10 +68,14 @@ def make_spline_variables(splines: Dict[str, Dict[str, Any]],
             **options,
             derivative_constr=spline_constraints
         )
+
         if coefficient_priors is not None:
+            num_fe = spline_variable._count_num_fe()
+            priors = coefficient_priors[0:num_fe]
+            coefficient_priors = coefficient_priors[num_fe:]
             fe_prior = GaussianPrior(
-                mean=coefficient_priors[spline],
-                std=[coefficient_prior_var] * len(coefficient_priors[spline])
+                mean=priors,
+                std=[coefficient_prior_var] * num_fe
             )
             spline_variable.fe_prior = fe_prior
         spline_variables.append(spline_variable)
