@@ -184,3 +184,28 @@ def test_hierarchy_run(group_data):
     res = preds - group_data['p']
     res_grp = preds_grp - group_data['p']
     assert (np.abs(res) > np.abs(res_grp)).mean() >= 0.975
+
+
+def test_hierarchy_spline(group_data_2):
+    b_run_grp = BinneyRun(
+        col_success='success',
+        col_total='total',
+        splines={
+            'x1': {
+                'degree': 3,
+                'knots_type': 'frequency',
+                'knots_num': 3
+            },
+            'x2': {
+                'degree': 3,
+                'knots_type': 'frequency',
+                'knots_num': 3
+            }
+        },
+        df=group_data_2,
+        solver_method='ipopt',
+        col_group='g',
+        coefficient_prior_var=5.
+    )
+    b_run_grp.fit()
+    b_run_grp.predict(group_data_2)
