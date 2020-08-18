@@ -20,3 +20,4 @@ deploy:
     distributions: sdist bdist_wheel
     repo: ihmeuw-msca/binney
     tags: true
+  skip_cleanup: true
