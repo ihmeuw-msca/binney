@@ -205,7 +205,8 @@ def test_hierarchy_spline(group_data_2):
         df=group_data_2,
         solver_method='ipopt',
         col_group='g',
-        coefficient_prior_var=5.
+        coefficient_prior_var=5.,
+        solver_options={'max_iter': 100}
     )
     b_run_grp.fit()
     b_run_grp.predict(group_data_2)
