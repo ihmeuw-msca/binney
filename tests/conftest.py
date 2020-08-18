@@ -121,7 +121,7 @@ def group_data(intercept, slope, n):
 @pytest.fixture(scope='session')
 def group_data_2(intercept, slope, n):
     np.random.seed(201)
-    n_groups = 5
+    n_groups = 1
     x1 = np.random.randn(n)
     x2 = np.random.randn(n)
     u = np.random.randn(n_groups)
